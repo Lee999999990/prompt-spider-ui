@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prompt Spider UI · 提问蛛网</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="cv"></canvas>
+
+<header>
+  <h1>Prompt Spider<small id="src">正在加载 graph.json …</small></h1>
+  <div class="kpis">
+    <div class="kpi"><b id="kPrompt">—</b><span>提问</span></div>
+    <div class="kpi"><b id="kThread">—</b><span>蛛丝</span></div>
+    <div class="kpi"><b id="kTool">—</b><span>工具调用</span></div>
+    <div class="kpi"><b id="kNode">—</b><span>节点</span></div>
+  </div>
+</header>
+
+<div id="bar">
+  <div class="box">
+    <h2>搜索提问</h2>
+    <input id="q" placeholder="输入关键词，回车定位" autocomplete="off" spellcheck="false">
+  </div>
+  <div class="box">
+    <h2>图层</h2>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="box">
+    <h2>视图</h2>
+    <div class="btns">
+      <button id="bLayout" aria-pressed="true">物理布局</button>
+      <button id="bFit">适配</button>
+      <button id="bTheme">主题 T</button>
+      <button id="bExport">导出 graph.json</button>
+    </div>
+  </div>
+  <div class="box">
+    <h2>数据源</h2>
+    <div class="btns" id="srcBtns"></div>
+  </div>
+</div>
+
+<div id="tip"></div>
+
+<aside id="panel">
+  <div class="ph"><b id="pTitle">—</b><span id="pSub"></span></div>
+  <div class="pb" id="pBody"></div>
+</aside>
+
+<footer>蛛丝粗细 = 这一问触发了多少次工具调用 · 点击节点看原话 · <b>T</b> 切主题 · <b>F</b> 适配 · <b>Esc</b> 收起面板</footer>
+<div id="clock"></div>
+<script src="app.js"></script>
+</body>
+</html>

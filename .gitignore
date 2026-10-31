@@ -1,0 +1,5 @@
+node_modules/
+# 个人会话数据不进公开仓库：数据由 src/extract.mjs 在你本机生成
+data/
+*.log
+.DS_Store
