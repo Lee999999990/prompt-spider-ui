@@ -13,7 +13,8 @@ const DATA = path.join(ROOT, 'data');
 const MEMORY = path.resolve(opt('--memory', process.env.MEMORY_GRAPH || path.join(ROOT, '../../工作台/记忆图/graph.json')));
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png' };
-const send = (res, code, body, type = 'application/json; charset=utf-8') => { res.writeHead(code, { 'Content-Type': type, 'Cache-Control': 'no-store' }); res.end(body); };
+const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*' };   // 工作台(8788)要跨端口探活+取图，放开只读 CORS
+const send = (res, code, body, type = 'application/json; charset=utf-8') => { res.writeHead(code, { 'Content-Type': type, 'Cache-Control': 'no-store', ...CORS }); res.end(body); };
 
 const sources = () => {
   const map = {};
@@ -24,6 +25,7 @@ const sources = () => {
 };
 
 http.createServer((req, res) => {
+  if (req.method === 'OPTIONS') return send(res, 204, '');
   const u = new URL(req.url, 'http://127.0.0.1');
   if (u.pathname === '/api/graphs') return send(res, 200, JSON.stringify({ available: Object.keys(sources()), memory: MEMORY }));
   if (u.pathname === '/api/graph') {
