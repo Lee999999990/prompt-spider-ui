@@ -6,7 +6,7 @@
 //   node src/extract.mjs --out data/prompts.json
 import fs from 'node:fs';
 import path from 'node:path';
-import zlib from 'node:zlib';
+import { unzstdAll } from './zstd-frames.mjs';
 
 const HOME = process.env.HOME;
 const argv = process.argv.slice(2);
@@ -33,7 +33,7 @@ function listSessions() {
 }
 
 function readRecs(file) {
-  const raw = zlib.zstdDecompressSync(fs.readFileSync(file)).toString('utf8');
+  const raw = unzstdAll(fs.readFileSync(file)).toString('utf8');
   const recs = [];
   for (const line of raw.split('\n')) {
     if (!line) continue;

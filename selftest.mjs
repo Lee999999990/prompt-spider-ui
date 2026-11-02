@@ -1,7 +1,10 @@
 // 自测：schema 契约 / 系统注入过滤 / 与记忆图双向往返。任何一条不成立就 exit 1。
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { assertGraph, MEMORY_GRAPH_TYPES } from './src/schema.mjs';
+import { unzstdAll, frameOffsets } from './src/zstd-frames.mjs';
+const require_zlib = () => createRequire(import.meta.url)('node:zlib');
 
 const D = (f) => path.join(import.meta.dirname, 'data', f);
 const read = (f) => JSON.parse(fs.readFileSync(D(f), 'utf8'));
@@ -75,6 +78,18 @@ t('T10 合并图里 prompt 与 project 之间确有边（两图真的搭上了�
     return (a === 'prompt' && b === 'project') || (a === 'project' && b === 'prompt');
   });
   ok(cross.length > 0, 'prompt 与 project 之间没有任何边，说明两张图只是并排摆放');
+});
+
+t('T11 多帧 zstd 会话日志能整段解开（DSH 一条记录一个帧）', () => {
+  // 线上事故：zstdDecompressSync 只解第一帧 → 2064 帧的日志只读出 1 条记录、0 个提问。
+  const zlib = require_zlib();
+  const a = zlib.zstdCompressSync(Buffer.from('{"type":"turn/start","seq":1}\n'));
+  const b = zlib.zstdCompressSync(Buffer.from('{"type":"turn/start","seq":2}\n'));
+  const raw = unzstdAll(Buffer.concat([a, b])).toString('utf8');
+  ok(frameOffsets(Buffer.concat([a, b])).length === 2, '帧头定位失败');
+  const lines = raw.split('\n').filter(Boolean);
+  ok(lines.length === 2, `多帧日志只解出 ${lines.length} 条，应为 2 条`);
+  ok(lines[1].includes('"seq":2'), '第二帧的内容丢了');
 });
 
 console.log(`\n${passed.length} passed, ${failed.length} failed`);
